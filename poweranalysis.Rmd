@@ -1,0 +1,78 @@
+---
+title: "Poweranalysis"
+author: "CK"
+date: "14/08/2020"
+output: 
+ bookdown::html_document2:
+  fig_caption: yes
+  toc: yes
+  toc_float: true
+  number_sections: false
+ bookdown::word_document2:
+ bookdown::pdf_document2:
+   keep_tex: true
+editor_options: 
+  chunk_output_type: console
+#always_allow_html: true
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+  encoding=encoding,
+  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+  
+---
+
+# Brief data summary
+```{r setup, include=TRUE, message=FALSE, echo=TRUE}
+library(tidyverse)
+library(rcompanion)
+library(pwr)
+library(rstatix)
+
+# Get some data
+metadata<- readr::read_tsv("~/Documents/Study/LaTrobe/Research/phD/Milestone2_Field_Survey/M2_Bacteria/M2_Qiime_output_Bacteria2020run/metadata.tsv") 
+
+# Change to your liking
+metadata2 <- metadata[c(2:nrow(metadata)),c(1:length(metadata))] %>%
+  tibble::rownames_to_column("spl") %>%
+  dplyr::mutate_all(type.convert) %>%
+  dplyr::mutate_if(is.factor, as.character) %>%
+  tibble::column_to_rownames("spl")
+
+# Mean dieldrin concentrations per paddock
+options(knitr.kable.NA = '')
+kableExtra::kable(metadata2 %>%
+  group_by(Paddock) %>%
+  get_summary_stats(D1517, type = "mean_se")) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+
+# Mean dieldrin losses per paddock
+# There is no standard error within each paddock - as the values for dieldrin loss were collected per paddock, not per sample
+kableExtra::kable(metadata2 %>%
+  group_by(Paddock) %>%
+  get_summary_stats(Dloss, type = "mean_se")) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+
+
+```
+
+# Confidence intervals (bootstrapped)
+```{r}
+# Test normality of dieldrin concentrations n = 36
+shapiro.test(metadata2$D1517)  # not normal
+
+# Get bootstrapped confidence interval - this time for dieldrin concentrations per sample.
+rcompanion::groupwiseMean(D1517 ~ 1, data = metadata2, conf = 0.95, digits = 3,
+                          boot = TRUE, R = 1000)
+
+
+# Group data by paddock and select dieldrin loss - n = 12
+meandata <- metadata2 %>% group_by(Soil, Paddock) %>% summarise(Dlossmean = mean(Dloss))
+
+# Test normality of dieldrin loss n = 12
+shapiro.test(meandata$Dlossmean)
+
+# Get bootstrapped confidence interval of dieldrin loss per paddock
+rcompanion::groupwiseMean(Dlossmean ~ 1, data = meandata, conf = 0.95, digits = 3,
+              boot = TRUE, R = 1000)
+
+```
+
