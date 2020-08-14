@@ -92,7 +92,7 @@ pwr.f2.test(u = 1, f2 = 0.5/(1 - 0.5), sig.level = 0.001, power = 0.8)
 data <- metadata2 %>% group_by(Paddock) %>% summarise(Dlossmean = mean(Dloss), CNmean = mean(CN))
 sum_stat <- data %>% rstatix::get_summary_stats(Dlossmean, show = c("mean", "sd", "se"))
 n = ( (2 * sum_stat$sd) / sum_stat$se )^2
-# n = 48 samples needed for the mean value to be robust mean of dieldrin concentrations
+# n = 48 samples needed for the mean dieldrin loss  to be robust
 n
 ```
 
