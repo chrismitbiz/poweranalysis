@@ -38,7 +38,7 @@ metadata2 <- metadata[c(2:nrow(metadata)),c(1:length(metadata))] %>%
   dplyr::mutate_all(type.convert) %>%
   dplyr::mutate_if(is.factor, as.character) %>%
   tibble::column_to_rownames("spl")
-
+ 
 # Mean dieldrin concentrations per paddock
 options(knitr.kable.NA = '')
 kableExtra::kable(metadata2 %>%
