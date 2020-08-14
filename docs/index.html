@@ -1554,7 +1554,7 @@ metadata2 &lt;- metadata[c(2:nrow(metadata)),c(1:length(metadata))] %&gt;%
   dplyr::mutate_all(type.convert) %&gt;%
   dplyr::mutate_if(is.factor, as.character) %&gt;%
   tibble::column_to_rownames(&quot;spl&quot;)
-
+ 
 # Mean dieldrin concentrations per paddock
 options(knitr.kable.NA = &#39;&#39;)
 kableExtra::kable(metadata2 %&gt;%
@@ -2033,11 +2033,11 @@ shapiro.test(metadata2$D1517)  # not normal</code></pre>
 rcompanion::groupwiseMean(D1517 ~ 1, data = metadata2, conf = 0.95, digits = 3,
                           boot = TRUE, R = 1000)</code></pre>
 <pre><code>##    .id  n  Mean Boot.mean Conf.level Trad.lower Trad.upper
-## 1 &lt;NA&gt; 36 0.524     0.524       0.95      0.343      0.705</code></pre>
+## 1 &lt;NA&gt; 36 0.524     0.523       0.95      0.343      0.705</code></pre>
 <pre class="r"><code># Group data by paddock and select dieldrin loss - n = 12
-meandata &lt;- metadata2 %&gt;% group_by(Soil, Paddock) %&gt;% summarise(Dlossmean = mean(Dloss))</code></pre>
-<pre><code>## `summarise()` regrouping output by &#39;Soil&#39; (override with `.groups` argument)</code></pre>
-<pre class="r"><code># Test normality of dieldrin loss n = 12
+meandata &lt;- metadata2 %&gt;% group_by(Soil, Paddock) %&gt;% summarise(Dlossmean = mean(Dloss))
+
+# Test normality of dieldrin loss n = 12
 shapiro.test(meandata$Dlossmean)</code></pre>
 <pre><code>## 
 ##  Shapiro-Wilk normality test
@@ -2048,7 +2048,35 @@ shapiro.test(meandata$Dlossmean)</code></pre>
 rcompanion::groupwiseMean(Dlossmean ~ 1, data = meandata, conf = 0.95, digits = 3,
               boot = TRUE, R = 1000)</code></pre>
 <pre><code>##    .id  n Mean Boot.mean Conf.level Trad.lower Trad.upper
-## 1 &lt;NA&gt; 12 60.2      60.1       0.95       48.1       72.2</code></pre>
+## 1 &lt;NA&gt; 12 60.2      60.2       0.95       48.1       72.2</code></pre>
+</div>
+<div id="power-analysis-with-pwr-package" class="section level1">
+<h1>Power analysis with pwr package</h1>
+<pre class="r"><code># Calculate the number of samples needed to model Dlossmean (12 samples) with CN as predictor
+# https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html
+# The effect size is the R2 of the model. the coefficient of determination, aka the “proportion of variance explained”
+pwr.f2.test(u = 1, f2 = 0.5/(1 - 0.5), sig.level = 0.001, power = 0.8)</code></pre>
+<pre><code>## 
+##      Multiple regression power calculation 
+## 
+##               u = 1
+##               v = 20.6584
+##              f2 = 1
+##       sig.level = 0.001
+##           power = 0.8</code></pre>
+<pre class="r"><code>#n = v + u + 1
+# n = 21 + 1 + 1 = 22 paddocks needed at an effec size of 0.5
+
+
+# samples (n) needed for a rubust mean
+#http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html
+# n = ((2 x STD) / SE )^2
+data &lt;- metadata2 %&gt;% group_by(Paddock) %&gt;% summarise(Dlossmean = mean(Dloss), CNmean = mean(CN))
+sum_stat &lt;- data %&gt;% rstatix::get_summary_stats(Dlossmean, show = c(&quot;mean&quot;, &quot;sd&quot;, &quot;se&quot;))
+n = ( (2 * sum_stat$sd) / sum_stat$se )^2
+# n = 48 samples needed for the mean value to be robust mean of dieldrin concentrations
+n</code></pre>
+<pre><code>## [1] 48.00781</code></pre>
 </div>
 
 
