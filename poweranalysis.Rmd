@@ -67,12 +67,15 @@ rcompanion::groupwiseMean(D1517 ~ 1, data = metadata2, conf = 0.95, digits = 3,
 # Group data by paddock and select dieldrin loss - n = 12
 meandata <- metadata2 %>% group_by(Soil, Paddock) %>% summarise(Dlossmean = mean(Dloss))
 
+meandata %>% group_by(Soil) %>% get_summary_stats(Dlossmean, type = "mean_se")
+
 # Test normality of dieldrin loss n = 12
 shapiro.test(meandata$Dlossmean)
 
 # Get bootstrapped confidence interval of dieldrin loss per paddock
 rcompanion::groupwiseMean(Dlossmean ~ 1, data = meandata, conf = 0.95, digits = 3,
               boot = TRUE, R = 1000)
+
 
 ```
 
@@ -94,5 +97,57 @@ sum_stat <- data %>% rstatix::get_summary_stats(Dlossmean, show = c("mean", "sd"
 n = ( (2 * sum_stat$sd) / sum_stat$se )^2
 # n = 48 samples needed for the mean dieldrin loss  to be robust
 n 
+```
+
+# Resample n 1000x and calculate mean and std of dieldrin concentrations
+```{r resampleexample, include=TRUE, message=FALSE, warning=FALSE, fig.width=15, fig.asp=0.5}
+resample = 1000
+measurement = 'D1517'
+
+# The mean mean function
+meanfunction <- function(df){
+df %>% rstatix::get_summary_stats(measurement, type = "mean")  
+}
+
+# Function to randomly resample the mean 1000x with replacement and get a df with the mean of each resample
+# Do this once as this takes time and do not repeat for histogram
+listfunction <- function(df){
+listdf <- replicate(resample, dplyr::slice_sample(df, n= n, replace = TRUE), simplify = FALSE) %>%
+  lapply(., meanfunction) %>% 
+  bind_rows  
+return(listdf)
+}
+
+# Function to get a summary statistic of the mean
+summaryfunction <- function(listdf){
+  listdf %>% rstatix::get_summary_stats(mean, type = "common")
+}
+
+
+# Function to get a historgram of the means
+histofunction <- function(summarydf){
+plotting <- summaryfunction(summarydf)
+  summarydf %>% ggpubr::gghistogram(x= "mean", title = paste(resample,"x resampled with n =", n, ", mean =", plotting$mean, "stdv =", plotting$sd))
+}
+
+n = 10 # number of samples to resample every time 
+summarydf <- listfunction(metadata2)
+summaryfunction(summarydf)
+p10 <- histofunction(summarydf)
+
+
+n = 15 # number of samples to resample every time 
+summarydf <- listfunction(metadata2)
+summaryfunction(summarydf)
+p15 <- histofunction(summarydf)
+
+
+n = 20 # number of samples to resample every time 
+summarydf <- listfunction(metadata2)
+summaryfunction(summarydf)
+p20 <- histofunction(summarydf)
+
+
+ggpubr::ggarrange(p10, p15, p20, nrow = 1)
 ```
 
