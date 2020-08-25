@@ -20,6 +20,8 @@ knit: (function(input_file, encoding) {
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
   
+  
+  
 ---
 
 # Brief data summary
@@ -99,8 +101,9 @@ n = ( (2 * sum_stat$sd) / sum_stat$se )^2
 n 
 ```
 
-# Resample n 1000x and calculate mean and std of dieldrin concentrations
-```{r resampleexample, include=TRUE, message=FALSE, warning=FALSE, fig.width=15, fig.asp=0.5}
+# Resample examples
+Resample 1000x and calculate mean and std of dieldrin concentrations
+```{r resampleexample, include=TRUE, message=FALSE, warning=FALSE, fig.width=17, fig.asp=0.4}
 resample = 1000
 measurement = 'D1517'
 
@@ -130,23 +133,24 @@ plotting <- summaryfunction(summarydf)
   summarydf %>% ggpubr::gghistogram(x= "mean", title = paste(resample,"x resampled with n =", n, ", mean =", plotting$mean, "stdv =", plotting$sd))
 }
 
+
+# n=10
 n = 10 # number of samples to resample every time 
 summarydf <- listfunction(metadata2)
 summaryfunction(summarydf)
 p10 <- histofunction(summarydf)
 
-
+# n=15
 n = 15 # number of samples to resample every time 
 summarydf <- listfunction(metadata2)
 summaryfunction(summarydf)
 p15 <- histofunction(summarydf)
 
-
+# n=20
 n = 20 # number of samples to resample every time 
 summarydf <- listfunction(metadata2)
 summaryfunction(summarydf)
 p20 <- histofunction(summarydf)
-
 
 ggpubr::ggarrange(p10, p15, p20, nrow = 1)
 ```
