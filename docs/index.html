@@ -2661,18 +2661,19 @@ Using:
 <span class="math display">\[N = {2 * SD \choose SE}^2\]</span>
 This is approximately at 95% confidence where N is the number of samples, SD the standard deviation and SE is the standard error. These values can be obtained from previous experiments, or from the literature</p>
 <pre class="r"><code># samples (n) needed for a rubust mean
-sum_stat &lt;- metadata2 %&gt;% group_by(Soil) %&gt;% rstatix::get_summary_stats(D1517, show = c(&quot;mean&quot;, &quot;sd&quot;, &quot;se&quot;))
+metadata2$logD1517 &lt;- log10(metadata2$D1517)
+sum_stat &lt;- metadata2 %&gt;% group_by(Soil) %&gt;% rstatix::get_summary_stats(logD1517, show = c(&quot;mean&quot;, &quot;sd&quot;, &quot;se&quot;))
 n = ( (2 * sum_stat$sd) / sum_stat$se )^2
 sum_stat</code></pre>
 <pre><code>## # A tibble: 2 x 6
-##   Soil      variable     n  mean    sd    se
-##   &lt;fct&gt;     &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1 Kurosol   D1517       21 0.158 0.07  0.015
-## 2 Chromosol D1517       15 1.04  0.473 0.122</code></pre>
+##   Soil      variable     n   mean    sd    se
+##   &lt;fct&gt;     &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Kurosol   logD1517    21 -0.866 0.282 0.061
+## 2 Chromosol logD1517    15 -0.021 0.179 0.046</code></pre>
 <pre class="r"><code>print(paste(&quot;Based on this simplified formula to compute the minimum number of samples (see link)&quot;, round(n[1],0), &quot;samples are needed for the Kurosol and&quot;,round(n[2],0),&quot;samples are needed for the Chromosol&quot;))</code></pre>
-<pre><code>## [1] &quot;Based on this simplified formula to compute the minimum number of samples (see link) 87 samples are needed for the Kurosol and 60 samples are needed for the Chromosol&quot;</code></pre>
-<p>At a fixed 95% confidence the Kurosol requires more samples as the SE is lower in this soil. So despite that the values in the Chromosol are more variable, less samples are apparently required. Thus one can be 95% confident that the values are more variable and fall between value x<sub>0</sub>…x<sub>n</sub> which more variable, correct? If so, then it does seem appropriate to use this simplified calculation which uses the standard error and another method is needed.</p>
-<p>Here this same formula is applied to dieldrin losses (n= 12)</p>
+<pre><code>## [1] &quot;Based on this simplified formula to compute the minimum number of samples (see link) 85 samples are needed for the Kurosol and 61 samples are needed for the Chromosol&quot;</code></pre>
+<p>At a fixed 95% confidence the Kurosol requires more samples as the SE is lower in this soil. So despite that the values in the Chromosol are more variable, less samples are apparently required. Thus one can be 95% confident that the values are more variable and fall between value x<sub>0</sub>…x<sub>n</sub> which more variable, correct? If so, then it does not seem appropriate to use this simplified calculation which uses the standard error and another method is needed.</p>
+<p><strong>Here the same formula is applied to dieldrin losses (n= 12):</strong></p>
 <pre class="r"><code># n = ((2 x STD) / SE )^2
 data &lt;- metadata2 %&gt;% group_by(Paddock) %&gt;% summarise(Dlossmean = mean(Dloss), CNmean = mean(CN))
 sum_stat &lt;- data %&gt;% rstatix::get_summary_stats(Dlossmean, show = c(&quot;mean&quot;, &quot;sd&quot;, &quot;se&quot;))

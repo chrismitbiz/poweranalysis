@@ -143,6 +143,7 @@ kableExtra::kable(metadata2 %>%
 The following is based on the pwr package vignette:  
 https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html
 ```{r power, include=TRUE, message=FALSE, echo=TRUE}
+
 # Calculate the number of samples needed to model Dlossmean (12 samples) with CN as predictor
 # https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html
 # The effect size is the R2 of the model. the coefficient of determination, aka the “proportion of variance explained”
@@ -168,15 +169,16 @@ $$N = {2 * SD \choose SE}^2$$
 This is approximately at 95% confidence where N is the number of samples, SD the standard deviation and SE is the standard error. These values can be obtained from previous experiments, or from the literature
 ```{r robustsamplesize,  include=TRUE, message=FALSE, echo=TRUE}
 # samples (n) needed for a rubust mean
-sum_stat <- metadata2 %>% group_by(Soil) %>% rstatix::get_summary_stats(D1517, show = c("mean", "sd", "se"))
+metadata2$logD1517 <- log10(metadata2$D1517)
+sum_stat <- metadata2 %>% group_by(Soil) %>% rstatix::get_summary_stats(logD1517, show = c("mean", "sd", "se"))
 n = ( (2 * sum_stat$sd) / sum_stat$se )^2
 sum_stat
 
 print(paste("Based on this simplified formula to compute the minimum number of samples (see link)", round(n[1],0), "samples are needed for the Kurosol and",round(n[2],0),"samples are needed for the Chromosol"))
 ```
-At a fixed 95% confidence the Kurosol requires more samples as the SE is lower in this soil. So despite that the values in the Chromosol are more variable, less samples are apparently required. Thus one can be 95% confident that the values are more variable and fall between value x~0~...x~n~ which more variable, correct? If so, then it does seem appropriate to use this simplified calculation which uses the standard error and another method is needed. 
+At a fixed 95% confidence the Kurosol requires more samples as the SE is lower in this soil. So despite that the values in the Chromosol are more variable, less samples are apparently required. Thus one can be 95% confident that the values are more variable and fall between value x~0~...x~n~ which more variable, correct? If so, then it does not seem appropriate to use this simplified calculation which uses the standard error and another method is needed. 
   
-Here this same formula is applied to dieldrin losses (n= 12)
+**Here the same formula is applied to dieldrin losses (n= 12):**
 ```{r robustsamplesize2,  include=TRUE, message=FALSE, echo=TRUE}
 # n = ((2 x STD) / SE )^2
 data <- metadata2 %>% group_by(Paddock) %>% summarise(Dlossmean = mean(Dloss), CNmean = mean(CN))
