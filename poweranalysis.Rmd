@@ -1,7 +1,7 @@
 ---
 title: "Poweranalysis"
 author: "CK"
-date: "14/08/2020"
+date: "24/08/2020"
 output: 
  bookdown::html_document2:
   fig_caption: yes
@@ -24,7 +24,17 @@ knit: (function(input_file, encoding) {
   
 ---
 
-# Brief data summary
+# The data set  
+The data consists of measurements of 36 pasture-soil samples (0－10cm) which are historically contaminated with dieldrin residues. Dieldrin is extremely persistent and therefore still found in the surface soil after three decades of natural attenuation.  
+  
+Total dieldrin loss (%) since 24-30 years was recorded per paddock. The samples were taken in 12 paddocks in two different soils, with three field replicates at representative areas of each paddock. So overall the data consists of:   
+  
+- 2 soils
+  - 12 paddocks (7 + 5)
+    - 36 samples (3 per paddock, 21 + 15)  
+  
+Dieldrin residue concentrations (µg/g soil) and other soil measurements were measured for all samples (n = 36) but dieldrin loss (%) was available per paddock only (n = 12). 
+
 ```{r setup, include=TRUE, message=FALSE, echo=TRUE}
 library(tidyverse)
 library(rcompanion)
@@ -41,6 +51,10 @@ metadata2 <- metadata[c(2:nrow(metadata)),c(1:length(metadata))] %>%
   dplyr::mutate_if(is.factor, as.character) %>%
   tibble::column_to_rownames("spl")
  
+# Some rows and 10 columns as overview of data. Only some of the measurements are shown.
+options(knitr.kable.NA = '')
+kableExtra::kable(metadata2[c(1:5,22:27),c(1:4,6,10,11,13,14,15,17)]) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+
 # Mean dieldrin concentrations per paddock
 options(knitr.kable.NA = '')
 kableExtra::kable(metadata2 %>%
@@ -53,8 +67,11 @@ kableExtra::kable(metadata2 %>%
   group_by(Paddock) %>%
   get_summary_stats(Dloss, type = "mean_se")) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
 
-
 ```
+
+
+# The question 1
+From the available 36 samples, how certain  
 
 # Confidence intervals (bootstrapped)
 ```{r ce, include=TRUE, message=FALSE, echo=TRUE}
@@ -103,7 +120,17 @@ n
 
 # Resample examples
 Resample 1000x and calculate mean and std of dieldrin concentrations
-```{r resampleexample, include=TRUE, message=FALSE, warning=FALSE, fig.width=17, fig.asp=0.4}
+```{r resampleexample, include=TRUE, message=FALSE, warning=FALSE, fig.width=17, fig.asp=0.4, cache=TRUE}
+
+# Notes 
+
+#calc mean and std 1000 x
+# calc distr. of means and std
+# variation from the mean
+# sample size less 30 - t distribution
+# look up the table
+# simulations
+
 resample = 1000
 measurement = 'D1517'
 
@@ -136,18 +163,21 @@ plotting <- summaryfunction(summarydf)
 
 # n=10
 n = 10 # number of samples to resample every time 
+set.seed(111)
 summarydf <- listfunction(metadata2)
 summaryfunction(summarydf)
 p10 <- histofunction(summarydf)
 
 # n=15
 n = 15 # number of samples to resample every time 
+set.seed(111)
 summarydf <- listfunction(metadata2)
 summaryfunction(summarydf)
 p15 <- histofunction(summarydf)
 
 # n=20
 n = 20 # number of samples to resample every time 
+set.seed(111)
 summarydf <- listfunction(metadata2)
 summaryfunction(summarydf)
 p20 <- histofunction(summarydf)
