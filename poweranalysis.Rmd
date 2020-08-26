@@ -137,7 +137,7 @@ kableExtra::kable(metadata2 %>%
   
 **Questions:**    
 - From the available 36 samples (21 for soil 1 and 15 for soil 2), how much power does a suitable test have to determine if there are significant differences between the two soils?  
-- How many samples are needed per sample to get the true mean of dieldrin concentrations per sample?  
+- How many samples are needed per sample to get the true mean of dieldrin concentrations?  
 - How many paddocks are needed to model biological data to dieldrin loss?
   
 **Some reading**   
