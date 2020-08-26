@@ -59,7 +59,7 @@ options(knitr.kable.NA = '')
 kableExtra::kable(metadata2[c(1:5,22:27),c(1:4,6,10,11,13,14,15,17)]) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
 ```
   
-  
+## Dieldrin concentrations  
 **Dieldrin concentrations (n=36) were approximately log-normal**
 ```{r shapiro, include=TRUE, message=FALSE, echo=FALSE}  
 # Test normality of dieldrin concentrations n = 36
@@ -95,8 +95,28 @@ kableExtra::kable(metadata2 %>%
   get_summary_stats(D1517, type = "mean_se")  %>% rename(Dieldrin = variable ) )%>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
 ```
   
+## Total dieldrin loss (%)
+
+**Dieldrin losses (%) since 1988  were approximately normal (n=12)**
+```{r shapiroloss, include=TRUE, message=FALSE, echo=FALSE}  
+# Test normality of dieldrin concentrations n = 36
+
+metadata2 %>%
+  group_by(Paddock) %>% summarise(Dloss = mean(Dloss)) %>%  rstatix::shapiro_test(Dloss)
+
+```
+
+**Distribution of dieldrin loss (%)**
+```{r boxplotsloss, include=TRUE, message=FALSE, echo=TRUE, fig.width=8, fig.asp=0.6} 
+# Boxplot of dieldrin concentrations across all 36 samples and then by soil type
+p1 <- metadata2 %>%  group_by(Soil, Paddock) %>% summarise(Dloss = mean(Dloss)) %>% ggpubr::ggboxplot(y = "Dloss", add="jitter", ylab = "Dieldrin loss (%)", add.params = list(shape = "Soil"))
+
+p2 <-  metadata2 %>%  group_by(Soil, Paddock) %>% summarise(Dloss = mean(Dloss)) %>% ggpubr::ggboxplot(y = "Dloss", x = "Soil", add="jitter", ylab = "Dieldrin loss (%)", add.params = list(shape = "Soil"))
+
+ggpubr::ggarrange(p1, p2)
+```
+
 **Total dieldrin loss since 1988 (%) per soil and paddock:**  
-  
 Total dieldrin loss was recorded per paddock only (n = 12)
 ```{r dieldrinloss, include=TRUE, message=FALSE, echo=FALSE}  
 
