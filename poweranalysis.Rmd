@@ -167,7 +167,7 @@ The following is based on http://r-video-tutorial.blogspot.com/2017/07/power-ana
 Using:
 $$N = {2 * SD \choose SE}^2$$
 This is approximately at 95% confidence where N is the number of samples, SD the standard deviation and SE is the standard error. These values can be obtained from previous experiments, or from the literature
-```{r robustsamplesize,  include=TRUE, message=FALSE, echo=TRUE}
+```{r robustsamplesize,  include=TRUE, message=FALSE, echo=FALSE}
 # samples (n) needed for a rubust mean
 metadata2$logD1517 <- log10(metadata2$D1517)
 sum_stat <- metadata2 %>% group_by(Soil) %>% rstatix::get_summary_stats(logD1517, show = c("mean", "sd", "se"))
