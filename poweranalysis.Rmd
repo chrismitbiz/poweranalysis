@@ -58,12 +58,25 @@ metadata2$Soil <- recode_factor(metadata2$Soil, '1' = 'Kurosol', '2' = 'Chromoso
 options(knitr.kable.NA = '')
 kableExtra::kable(metadata2[c(1:5,22:27),c(1:4,6,10,11,13,14,15,17)]) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
 ```
-
+  
+  
 **Dieldrin concentrations (n=36) were approximately log-normal**
 ```{r shapiro, include=TRUE, message=FALSE, echo=FALSE}  
 # Test normality of dieldrin concentrations n = 36
 shapiro.test(log10(metadata2$D1517))  # aprox lognormal
 ```
+  
+
+**Distribution of dieldrin concentrations (log-scale)**
+```{r boxplots, include=TRUE, message=FALSE, echo=TRUE, fig.width=8, fig.asp=0.6} 
+# Boxplot of dieldrin concentrations across all 36 samples and then by soil type
+p1 <- metadata2 %>% ggpubr::ggboxplot(y = "D1517", add="jitter", ylab = "Dieldrin concentrations (µg/g soil)", add.params = list(shape = "Soil"), yscale = "log10")
+
+p2 <- metadata2 %>% ggpubr::ggboxplot(y = "D1517", x = "Soil", add="jitter", ylab = "Dieldrin concentrations (µg/g soil)", shape = "Soil", yscale = "log10")
+
+ggpubr::ggarrange(p1, p2)
+```
+
   
 **Dieldrin concentrations per soil and paddock:**
 ```{r dieldrincc, include=TRUE, message=FALSE, echo=FALSE}
@@ -100,16 +113,6 @@ kableExtra::kable(metadata2 %>%
 
 ```
   
-Distribution of dieldrin concentrations (log-scale)
-```{r boxplots, include=TRUE, message=FALSE, echo=TRUE, fig.width=8, fig.asp=0.6} 
-# Boxplot of dieldrin concentrations across all 36 samples and then by soil type
-p1 <- metadata2 %>% ggpubr::ggboxplot(y = "D1517", add="jitter", ylab = "Dieldrin concentrations (µg/g soil)", add.params = list(shape = "Soil"), yscale = "log10")
-
-p2 <- metadata2 %>% ggpubr::ggboxplot(y = "D1517", x = "Soil", add="jitter", ylab = "Dieldrin concentrations (µg/g soil)", shape = "Soil", yscale = "log10")
-
-ggpubr::ggarrange(p1, p2)
-```
-
 
 # Questions  
   
