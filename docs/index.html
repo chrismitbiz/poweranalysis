@@ -2687,7 +2687,7 @@ measurement = &#39;D1517&#39;
 
 # The mean mean function
 meanfunction &lt;- function(df){
-df %&gt;% rstatix::get_summary_stats(measurement, type = &quot;mean_sd&quot;)  
+df %&gt;% rstatix::get_summary_stats(measurement, type = &quot;mean&quot;)  
 }
 
 # Function to randomly resample the mean 1000x with replacement and get a df with the mean of each resample
@@ -2750,12 +2750,13 @@ ggpubr::ggarrange(p10, p15, p20, nrow = 1)</code></pre>
 <p>Lets say we take the mean and SD from the resampling with n = 10 and calculate the chance that the mean was outside the 2 SDs (outside of 95% of all probabilities). In other words, assuming the distribution was normal, how often does the mean fall outside the 95% of the resampled mean population?</p>
 <p>So of the 1000 resamples calculate the percentage of times that the mean values are above 2xSD and below 2xSD.
 In other words how many times to we get P( (X &lt; (µ - 2SD)) + (X &gt; (µ - 2SD)) ) = 0.05</p>
-<pre class="r"><code>mean( (summarydf %&gt;% dplyr::select(mean)) &gt; (summarydf %&gt;% dplyr::select(mean) + 2*summaryfunction(summarydf)$sd) )</code></pre>
-<pre><code>## [1] 0</code></pre>
-<pre class="r"><code>mean( (summarydf %&gt;% dplyr::select(mean)) &lt; (summarydf %&gt;% dplyr::select(mean) - 2*summaryfunction(summarydf)$sd) )</code></pre>
-<pre><code>## [1] 0</code></pre>
+<pre class="r"><code>mean( (summarydf %&gt;% dplyr::select(mean)) &gt; (summaryfunction(summarydf)$mean + (2*summaryfunction(summarydf)$sd)) ) + 
+  mean( (summarydf %&gt;% dplyr::select(mean)) &lt; (summaryfunction(summarydf)$mean - 2*summaryfunction(summarydf)$sd) )</code></pre>
+<pre><code>## [1] 0.053</code></pre>
 <p>Result:<br />
-Never! 2*SD is always higher or lower then the sampled means. Need to understand this.. ongoing</p>
+0.043. There is a 4.3% chance that the sampled mean falls outside the significant of 0.05%<br />
+1 - 0.043 = 0.957.</p>
+<p>So based on a normal distribution and a z-score the power is 95.7% ?</p>
 <p><br /></p>
 </div>
 </div>

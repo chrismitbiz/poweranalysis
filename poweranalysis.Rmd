@@ -199,7 +199,7 @@ measurement = 'D1517'
 
 # The mean mean function
 meanfunction <- function(df){
-df %>% rstatix::get_summary_stats(measurement, type = "mean_sd")  
+df %>% rstatix::get_summary_stats(measurement, type = "mean")  
 }
 
 # Function to randomly resample the mean 1000x with replacement and get a df with the mean of each resample
@@ -252,12 +252,16 @@ Lets say we take the mean and SD from the resampling with n = 10 and calculate t
   
 So of the 1000 resamples calculate the percentage of times that the mean values are above 2xSD and below 2xSD. 
 In other words how many times to we get P( (X < (µ - 2SD)) + (X > (µ - 2SD)) ) = 0.05 
-```{r, include=TRUE, message=FALSE, warning=FALSE,}
-mean( (summarydf %>% dplyr::select(mean)) > (summarydf %>% dplyr::select(mean) + 2*summaryfunction(summarydf)$sd) )
-mean( (summarydf %>% dplyr::select(mean)) < (summarydf %>% dplyr::select(mean) - 2*summaryfunction(summarydf)$sd) )
+```{r, include=TRUE, message=FALSE, warning=FALSE}
+mean( (summarydf %>% dplyr::select(mean)) > (summaryfunction(summarydf)$mean + (2*summaryfunction(summarydf)$sd)) ) + 
+  mean( (summarydf %>% dplyr::select(mean)) < (summaryfunction(summarydf)$mean - 2*summaryfunction(summarydf)$sd) )
+
 ```
 Result:  
-Never! 2*SD is always higher or lower then the sampled means. Need to understand this.. ongoing
+0.043. There is a 4.3% chance that the sampled mean falls outside the significant of 0.05%  
+1 - 0.043 = 0.957.  
+
+So based on a normal distribution and a z-score the power is 95.7% ?
 
 <br/>  
   
