@@ -19,9 +19,9 @@ knit: (function(input_file, encoding) {
   rmarkdown::render(input_file,
   encoding=encoding,
   output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-  
-  
-  
+bibliography: "library.bib"
+biblio-style: "apalike"
+link-citations: yes  
 ---
 
 # The data set  
@@ -137,8 +137,11 @@ kableExtra::kable(metadata2 %>%
   
 **Questions:**    
 - From the available 36 samples (21 for soil 1 and 15 for soil 2), how much power does the mean have for each soil?  
-- How many samples are needed per sample to get the true mean of dieldrin concentrations per sample? 
+- How many samples are needed per sample to get the true mean of dieldrin concentrations per sample?  
   
+**Some reading**  
+- Statistical power analysis: A simple and general model for traditional and modern hypothesis tests [@Murphy2014]  
+
 ## pwr package
 The following is based on the pwr package vignette:  
 https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html
@@ -285,3 +288,4 @@ rcompanion::groupwiseMean(Dlossmean ~ 1, data = meandata, conf = 0.95, digits = 
 
 ```
 
+# References
