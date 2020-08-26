@@ -51,7 +51,9 @@ metadata2 <- metadata[c(2:nrow(metadata)),c(1:length(metadata))] %>%
   dplyr::mutate_all(type.convert) %>%
   dplyr::mutate_if(is.factor, as.character) %>%
   tibble::column_to_rownames("spl")
- 
+
+metadata2$Soil <- recode_factor(metadata2$Soil, '1' = 'Kurosol', '2' = 'Chromosol')
+
 # Some rows and 10 columns as overview of data. Only some of the measurements are shown.
 options(knitr.kable.NA = '')
 kableExtra::kable(metadata2[c(1:5,22:27),c(1:4,6,10,11,13,14,15,17)]) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
