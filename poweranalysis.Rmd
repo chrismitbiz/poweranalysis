@@ -164,6 +164,8 @@ If we wanted to redo this experiment (using equal sample sizes) 25 samples per s
 
   
 <br/>
+
+#### F-test
 ```{r powerf, include=TRUE, message=FALSE, echo=TRUE}
 
 # Calculate the number of samples needed to model Dlossmean (12 samples) with CN as predictor
@@ -174,6 +176,8 @@ pwr.f2.test(u = 1, f2 = 0.5/(1 - 0.5), sig.level = 0.001, power = 0.8)
 # n = 21 + 1 + 1 = 22 paddocks needed at an effec size of 0.5
 
 ```
+
+<br/>
 
 ## A robust mean? 
 The following is based on http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html  

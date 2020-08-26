@@ -2651,6 +2651,9 @@ pwr.t.test(n = 15, d = 0.8, sig.level = 0.05)</code></pre>
 The sample size is uneven between the two soils (n= 21, n = 15) so the t-test is not suitable. However, doing it anyway and using the lower number of n (n = 15) and a large effect size (how do we actually calculate d for t-tests as 0 -1?), the power of a t-test would be relatively low (power = 0.56).</p>
 <p>If we wanted to redo this experiment (using equal sample sizes) 25 samples per soil are needed to test for significant differences at a power of 0.8.</p>
 <p><br /></p>
+</div>
+<div id="f-test" class="section level4">
+<h4>F-test</h4>
 <pre class="r"><code># Calculate the number of samples needed to model Dlossmean (12 samples) with CN as predictor
 # https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html
 # The effect size is the R2 of the model. the coefficient of determination, aka the “proportion of variance explained”
@@ -2665,6 +2668,7 @@ pwr.f2.test(u = 1, f2 = 0.5/(1 - 0.5), sig.level = 0.001, power = 0.8)</code></p
 ##           power = 0.8</code></pre>
 <pre class="r"><code>#n = v + u + 1
 # n = 21 + 1 + 1 = 22 paddocks needed at an effec size of 0.5</code></pre>
+<p><br /></p>
 </div>
 </div>
 <div id="a-robust-mean" class="section level2">
