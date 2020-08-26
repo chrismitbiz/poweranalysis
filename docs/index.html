@@ -2041,7 +2041,7 @@ n
 mean
 </th>
 <th style="text-align:right;">
-se
+sd
 </th>
 </tr>
 </thead>
@@ -2060,7 +2060,7 @@ D1517
 0.158
 </td>
 <td style="text-align:right;">
-0.015
+0.070
 </td>
 </tr>
 <tr>
@@ -2077,7 +2077,7 @@ D1517
 1.036
 </td>
 <td style="text-align:right;">
-0.122
+0.473
 </td>
 </tr>
 </tbody>
@@ -2337,7 +2337,7 @@ n
 mean
 </th>
 <th style="text-align:right;">
-se
+sd
 </th>
 </tr>
 </thead>
@@ -2356,7 +2356,7 @@ Dloss
 73.143
 </td>
 <td style="text-align:right;">
-1.537
+7.045
 </td>
 </tr>
 <tr>
@@ -2373,7 +2373,7 @@ Dloss
 42.000
 </td>
 <td style="text-align:right;">
-3.418
+13.240
 </td>
 </tr>
 </tbody>
@@ -2620,6 +2620,37 @@ Dloss
 <h2>pwr package</h2>
 <p>The following is based on the pwr package vignette:<br />
 <a href="https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html" class="uri">https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html</a></p>
+<div id="t-test" class="section level4">
+<h4>t-test</h4>
+<p>How powerful is this experiment if we want to detect a “large” effect in either direction with a significance level of 0.05</p>
+<pre class="r"><code># Effect size large = 0.8
+
+pwr.t.test(n = 15, d = 0.8, sig.level = 0.05)</code></pre>
+<pre><code>## 
+##      Two-sample t test power calculation 
+## 
+##               n = 15
+##               d = 0.8
+##       sig.level = 0.05
+##           power = 0.5617849
+##     alternative = two.sided
+## 
+## NOTE: n is number in *each* group</code></pre>
+<pre class="r"><code>pwr.t.test( d = 0.8, sig.level = 0.05, power = 0.8)</code></pre>
+<pre><code>## 
+##      Two-sample t test power calculation 
+## 
+##               n = 25.52458
+##               d = 0.8
+##       sig.level = 0.05
+##           power = 0.8
+##     alternative = two.sided
+## 
+## NOTE: n is number in *each* group</code></pre>
+<p>Result:<br />
+The sample size is uneven between the two soils (n= 21, n = 15) so the t-test is not suitable. However, doing it anyway and using the lower number of n (n = 15) and a large effect size (how do we actually calculate d for t-tests as 0 -1?), the power of a t-test would be relatively low (power = 0.56).</p>
+<p>If we wanted to redo this experiment (using equal sample sizes) 25 samples per soil are needed to test for significant differences at a power of 0.8.</p>
+<p><br /></p>
 <pre class="r"><code># Calculate the number of samples needed to model Dlossmean (12 samples) with CN as predictor
 # https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html
 # The effect size is the R2 of the model. the coefficient of determination, aka the “proportion of variance explained”
@@ -2635,6 +2666,7 @@ pwr.f2.test(u = 1, f2 = 0.5/(1 - 0.5), sig.level = 0.001, power = 0.8)</code></p
 <pre class="r"><code>#n = v + u + 1
 # n = 21 + 1 + 1 = 22 paddocks needed at an effec size of 0.5</code></pre>
 </div>
+</div>
 <div id="a-robust-mean" class="section level2">
 <h2>A robust mean?</h2>
 <p>The following is based on <a href="http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html" class="uri">http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html</a><br />
@@ -2647,7 +2679,8 @@ This is approximately at 95% confidence where N is the number of samples, SD the
 ## 1 Kurosol   logD1517    21 -0.866 0.282 0.061
 ## 2 Chromosol logD1517    15 -0.021 0.179 0.046</code></pre>
 <pre><code>## [1] &quot;Based on this simplified formula to compute the minimum number of samples (see link) 85 samples are needed for the Kurosol and 61 samples are needed for the Chromosol&quot;</code></pre>
-<p>At a fixed 95% confidence the Kurosol requires more samples as the SE is lower in this soil. So despite that the values in the Chromosol are more variable, less samples are apparently required. Thus one can be 95% confident that the values are more variable and fall between value x<sub>1</sub>…x<sub>n</sub> which more variable, correct? If so, then it does not seem appropriate to use this simplified calculation which uses the standard error and another method is needed.</p>
+<p>Result:<br />
+At a fixed 95% confidence the Kurosol requires more samples as the SE is lower in this soil. So despite that the values in the Chromosol are more variable, less samples are apparently required. Thus one can be 95% confident that the values are more variable and fall between value x<sub>1</sub>…x<sub>n</sub> which more variable, correct? If so, then it does not seem appropriate to use this simplified calculation which uses the standard error and another method is needed.</p>
 <p><strong>Here the same formula is applied to dieldrin losses (n= 12):</strong></p>
 <pre class="r"><code># n = ((2 x STD) / SE )^2
 data &lt;- metadata2 %&gt;% group_by(Paddock) %&gt;% summarise(Dlossmean = mean(Dloss), CNmean = mean(CN))
