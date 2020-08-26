@@ -181,7 +181,7 @@ pwr.f2.test(u = 1, f2 = 0.5/(1 - 0.5), sig.level = 0.001, power = 0.8)
 
 <br/>
 
-### Do resampling of mean dieldrin concentrations  
+#### Do resampling of mean dieldrin concentrations  
 Calculate the power of getting the true mean of dieldrin concentrations from the pilot (n = 36). Resample 1000x across both soils and calculate mean and std of dieldrin concentrations. 
 ```{r resampleexample, include=TRUE, message=FALSE, warning=FALSE, fig.width=17, fig.asp=0.4, cache=TRUE}
 
