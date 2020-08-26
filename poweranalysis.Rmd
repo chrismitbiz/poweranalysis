@@ -27,15 +27,16 @@ knit: (function(input_file, encoding) {
 # The data set  
 The data consists of measurements of 36 pasture-soil samples (0－10cm) which are historically contaminated with dieldrin residues. Dieldrin is extremely persistent and therefore still found in the surface soil after three decades of natural attenuation.  
   
-Total dieldrin loss (%) since 24-30 years was recorded per paddock. The samples were taken in 12 paddocks in two different soils, with three field replicates at representative areas of each paddock. So overall the data consists of:   
+The samples were taken in 12 paddocks in two different soils, with three field replicates at representative areas of each paddock. So overall the data consists of:   
   
 - 2 soils
   - 12 paddocks (7 + 5)
     - 36 samples (3 per paddock, 21 + 15)  
   
-Dieldrin residue concentrations (µg/g soil) and other soil measurements were measured for all samples (n = 36) but dieldrin loss (%) was available per paddock only (n = 12). 
-
-```{r setup, include=TRUE, message=FALSE, echo=TRUE}
+Total dieldrin loss (%) since 24-30 years was recorded per paddock. Thus, dieldrin residue concentrations (µg/g soil) and other soil measurements were measured for all samples (n = 36) but dieldrin loss (%) was available per paddock only (n = 12). 
+  
+**Data table (n = 36):**
+```{r setup, include=TRUE, message=FALSE, echo=FALSE}
 library(tidyverse)
 library(rcompanion)
 library(pwr)
@@ -54,38 +55,78 @@ metadata2 <- metadata[c(2:nrow(metadata)),c(1:length(metadata))] %>%
 # Some rows and 10 columns as overview of data. Only some of the measurements are shown.
 options(knitr.kable.NA = '')
 kableExtra::kable(metadata2[c(1:5,22:27),c(1:4,6,10,11,13,14,15,17)]) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+```
+
+**Dieldrin concentrations (n=36) were approximately log-normal**
+```{r shapiro, include=TRUE, message=FALSE, echo=FALSE}  
+# Test normality of dieldrin concentrations n = 36
+shapiro.test(log10(metadata2$D1517))  # aprox lognormal
+```
+  
+**Dieldrin concentrations per soil and paddock:**
+```{r dieldrincc, include=TRUE, message=FALSE, echo=FALSE}
+
+
+options(knitr.kable.NA = '')
+kableExtra::kable(metadata2 %>%
+  group_by(Soil) %>%
+  get_summary_stats(D1517, type = "mean_se") %>% rename(Dieldrin = variable ) ) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+
 
 # Mean dieldrin concentrations per paddock
 options(knitr.kable.NA = '')
 kableExtra::kable(metadata2 %>%
   group_by(Paddock) %>%
-  get_summary_stats(D1517, type = "mean_se")) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+  get_summary_stats(D1517, type = "mean_se")  %>% rename(Dieldrin = variable ) )%>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+```
+  
+**Total dieldrin loss since 1988 (%) per soil and paddock:**  
+  
+Total dieldrin loss was recorded per paddock only (n = 12)
+```{r dieldrinloss, include=TRUE, message=FALSE, echo=FALSE}  
+
+kableExtra::kable(metadata2 %>%
+  group_by(Soil) %>%
+  get_summary_stats(Dloss, type = "mean_se")  %>% rename(Dieldrinloss = variable )) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+
 
 # Mean dieldrin losses per paddock
 # There is no standard error within each paddock - as the values for dieldrin loss were collected per paddock, not per sample
 kableExtra::kable(metadata2 %>%
   group_by(Paddock) %>%
-  get_summary_stats(Dloss, type = "mean_se")) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+  get_summary_stats(Dloss, type = "mean_se")  %>% rename(Dieldrinloss = variable )) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
 
+```
+  
+Distribution of dieldrin concentrations (log-scale)
+```{r boxplots, include=TRUE, message=FALSE, echo=TRUE, fig.width=8, fig.asp=0.6} 
+# Boxplot of dieldrin concentrations across all 36 samples and then by soil type
+p1 <- metadata2 %>% ggpubr::ggboxplot(y = "D1517", add="jitter", ylab = "Dieldrin concentrations (µg/g soil)", add.params = list(shape = "Soil"), yscale = "log10")
+
+p2 <- metadata2 %>% ggpubr::ggboxplot(y = "D1517", x = "Soil", add="jitter", ylab = "Dieldrin concentrations (µg/g soil)", shape = "Soil", yscale = "log10")
+
+ggpubr::ggarrange(p1, p2)
 ```
 
 
-# The question 1
-From the available 36 samples, how certain  
+# Questions  
+  
+- From the available 36 samples (21 for soil 1 and 15 for soil 2), how much power does the mean have for each soil?
+- How many samples are needed per sample to get the true mean of dieldrin concentrations per sample? 
 
 # Confidence intervals (bootstrapped)
 ```{r ce, include=TRUE, message=FALSE, echo=TRUE}
-# Test normality of dieldrin concentrations n = 36
-shapiro.test(metadata2$D1517)  # not normal
+
 
 # Get bootstrapped confidence interval - this time for dieldrin concentrations per sample.
 rcompanion::groupwiseMean(D1517 ~ 1, data = metadata2, conf = 0.95, digits = 3,
-                          boot = TRUE, R = 1000)
+                          boot = FALSE, R = 1000)
 
+rcompanion::groupwiseMean(D1517 ~ Soil, data = metadata2, conf = 0.95, digits = 3,
+                          boot = FALSE, R = 1000)
 
 # Group data by paddock and select dieldrin loss - n = 12
 meandata <- metadata2 %>% group_by(Soil, Paddock) %>% summarise(Dlossmean = mean(Dloss))
-
 meandata %>% group_by(Soil) %>% get_summary_stats(Dlossmean, type = "mean_se")
 
 # Test normality of dieldrin loss n = 12
@@ -94,6 +135,7 @@ shapiro.test(meandata$Dlossmean)
 # Get bootstrapped confidence interval of dieldrin loss per paddock
 rcompanion::groupwiseMean(Dlossmean ~ 1, data = meandata, conf = 0.95, digits = 3,
               boot = TRUE, R = 1000)
+
 
 
 ```
