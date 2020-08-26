@@ -139,9 +139,10 @@ kableExtra::kable(metadata2 %>%
 - From the available 36 samples (21 for soil 1 and 15 for soil 2), how much power does the mean have for each soil?  
 - How many samples are needed per sample to get the true mean of dieldrin concentrations per sample?  
   
-**Some reading**  
+**Some reading**   
 - Statistical power analysis: A simple and general model for traditional and modern hypothesis tests [@Murphy2014]  
-
+- Statistical Power Analysis [@Cohen1992]
+  
 ## pwr package
 The following is based on the pwr package vignette:  
 https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html
