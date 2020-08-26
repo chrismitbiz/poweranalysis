@@ -57,6 +57,8 @@ metadata2$Soil <- recode_factor(metadata2$Soil, '1' = 'Kurosol', '2' = 'Chromoso
 # Some rows and 10 columns as overview of data. Only some of the measurements are shown.
 options(knitr.kable.NA = '')
 kableExtra::kable(metadata2[c(1:5,22:27),c(1:4,6,10,11,13,14,15,17)]) %>% kableExtra::kable_styling(full_width = F, position = "left",bootstrap_options = c( "condensed"), font_size = 11 )
+
+
 ```
   
 ## Dieldrin concentrations  
@@ -136,7 +138,7 @@ kableExtra::kable(metadata2 %>%
 # Power analysis 
   
 **Questions:**    
-- From the available 36 samples (21 for soil 1 and 15 for soil 2), how much power does a suitable test have to determine if there are significant differences between the two soils?  
+- From the available 36 samples (21 for soil 1 and 15 for soil 2), how much power does a suitable test have to determine if there are significant differences between the two soils? If I understand power correctly, then it is the chance of getting a significant results i.e. power = percent(<=0.05).  
 - How many samples are needed per sample to get the true mean of dieldrin concentrations?  
 - How many paddocks are needed to model biological data to dieldrin loss?
   
@@ -179,37 +181,8 @@ pwr.f2.test(u = 1, f2 = 0.5/(1 - 0.5), sig.level = 0.001, power = 0.8)
 
 <br/>
 
-## A robust mean? 
-The following is based on http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html  
-Using:
-$$N = {2 * SD \choose SE}^2$$
-This is approximately at 95% confidence where N is the number of samples, SD the standard deviation and SE is the standard error. These values can be obtained from previous experiments, or from the literature
-```{r robustsamplesize,  include=TRUE, message=FALSE, echo=FALSE}
-# samples (n) needed for a rubust mean
-metadata2$logD1517 <- log10(metadata2$D1517)
-sum_stat <- metadata2 %>% group_by(Soil) %>% rstatix::get_summary_stats(logD1517, show = c("mean", "sd", "se"))
-n = ( (2 * sum_stat$sd) / sum_stat$se )^2
-sum_stat
-
-print(paste("Based on this simplified formula to compute the minimum number of samples (see link)", round(n[1],0), "samples are needed for the Kurosol and",round(n[2],0),"samples are needed for the Chromosol"))
-```
-Result:  
-At a fixed 95% confidence the Kurosol requires more samples as the SE is lower in this soil. So despite that the values in the Chromosol are more variable, less samples are apparently required. Thus one can be 95% confident that the values are more variable and fall between value x~1~...x~n~ which more variable, correct? If so, then it does not seem appropriate to use this simplified calculation which uses the standard error and another method is needed. 
-  
-**Here the same formula is applied to dieldrin losses (n= 12):**
-```{r robustsamplesize2,  include=TRUE, message=FALSE, echo=TRUE}
-# n = ((2 x STD) / SE )^2
-data <- metadata2 %>% group_by(Paddock) %>% summarise(Dlossmean = mean(Dloss), CNmean = mean(CN))
-sum_stat <- data %>% rstatix::get_summary_stats(Dlossmean, show = c("mean", "sd", "se"))
-n = ( (2 * sum_stat$sd) / sum_stat$se )^2
-# n = 48 samples needed for the mean dieldrin loss  to be robust
-n 
-```
-Accordingly, 48 samples were needed for the mean dieldrin loss to be robust
-  
-  
-### Do resampling instead
-Resample 1000x and calculate mean and std of dieldrin concentrations
+### Do resampling of mean dieldrin concentrations  
+Calculate the power of getting the true mean of dieldrin concentrations from the pilot (n = 36). Resample 1000x across both soils and calculate mean and std of dieldrin concentrations. 
 ```{r resampleexample, include=TRUE, message=FALSE, warning=FALSE, fig.width=17, fig.asp=0.4, cache=TRUE}
 
 # Notes 
@@ -226,7 +199,7 @@ measurement = 'D1517'
 
 # The mean mean function
 meanfunction <- function(df){
-df %>% rstatix::get_summary_stats(measurement, type = "mean")  
+df %>% rstatix::get_summary_stats(measurement, type = "mean_sd")  
 }
 
 # Function to randomly resample the mean 1000x with replacement and get a df with the mean of each resample
@@ -274,7 +247,52 @@ p20 <- histofunction(summarydf)
 
 ggpubr::ggarrange(p10, p15, p20, nrow = 1)
 ```
+  
+Lets say we take the mean and SD from the resampling with n = 10 and calculate the chance that the mean was outside the 2 SDs (outside of 95% of all probabilities). In other words, assuming the distribution was normal, how often does the mean fall outside the 95% of the resampled mean population?   
+  
+So of the 1000 resamples calculate the percentage of times that the mean values are above 2xSD and below 2xSD. 
+In other words how many times to we get P( (X < (µ - 2SD)) + (X > (µ - 2SD)) ) = 0.05 
+```{r, include=TRUE, message=FALSE, warning=FALSE,}
+mean( (summarydf %>% dplyr::select(mean)) > (summarydf %>% dplyr::select(mean) + 2*summaryfunction(summarydf)$sd) )
+mean( (summarydf %>% dplyr::select(mean)) < (summarydf %>% dplyr::select(mean) - 2*summaryfunction(summarydf)$sd) )
+```
+Result:  
+Never! 2*SD is always higher or lower then the sampled means. Need to understand this.. ongoing
 
+<br/>  
+  
+  
+## A robust mean? 
+The following is based on http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html  
+Using:
+$$N = {2 * SD \choose SE}^2$$
+This is approximately at 95% confidence where N is the number of samples, SD the standard deviation and SE is the standard error. These values can be obtained from previous experiments, or from the literature
+```{r robustsamplesize,  include=TRUE, message=FALSE, echo=FALSE}
+# samples (n) needed for a rubust mean
+metadata2$logD1517 <- log10(metadata2$D1517)
+sum_stat <- metadata2 %>% group_by(Soil) %>% rstatix::get_summary_stats(logD1517, show = c("mean", "sd", "se"))
+n = ( (2 * sum_stat$sd) / sum_stat$se )^2
+sum_stat
+
+print(paste("Based on this simplified formula to compute the minimum number of samples (see link)", round(n[1],0), "samples are needed for the Kurosol and",round(n[2],0),"samples are needed for the Chromosol"))
+```
+Result:  
+At a fixed 95% confidence the Kurosol requires more samples as the SE is lower in this soil. So despite that the values in the Chromosol are more variable, less samples are apparently required. Thus one can be 95% confident that the values are more variable in the Chromosol and fall between a wider value range x~1~...x~n~ ? If so, then it does not seem appropriate to use this simplified calculation which uses the standard error and another method is needed. 
+  
+**Here the same formula is applied to dieldrin losses (n= 12):**
+```{r robustsamplesize2,  include=TRUE, message=FALSE, echo=TRUE}
+# n = ((2 x STD) / SE )^2
+data <- metadata2 %>% group_by(Paddock) %>% summarise(Dlossmean = mean(Dloss), CNmean = mean(CN))
+sum_stat <- data %>% rstatix::get_summary_stats(Dlossmean, show = c("mean", "sd", "se"))
+n = ( (2 * sum_stat$sd) / sum_stat$se )^2
+# n = 48 samples needed for the mean dieldrin loss  to be robust
+n 
+```
+Accordingly, 48 samples were needed for the mean dieldrin loss to be robust
+  
+  
+
+  
 
 # Other stuff
 ## Confidence intervals (bootstrapped)
@@ -282,11 +300,11 @@ ggpubr::ggarrange(p10, p15, p20, nrow = 1)
 
 # Get bootstrapped confidence interval for dieldrin concentrations per sample.
 rcompanion::groupwiseMean(D1517 ~ 1, data = metadata2, conf = 0.95, digits = 3,
-                          boot = FALSE, R = 1000)
+                          boot = TRUE, R = 1000)
 
 # Get bootstrapped confidence interval per soil
 rcompanion::groupwiseMean(D1517 ~ Soil, data = metadata2, conf = 0.95, digits = 3,
-                          boot = FALSE, R = 1000)
+                          boot = TRUE, R = 1000)
 
 # Group data by paddock and select dieldrin loss - n = 12
 meandata <- metadata2 %>% group_by(Soil, Paddock) %>% summarise(Dlossmean = mean(Dloss))
