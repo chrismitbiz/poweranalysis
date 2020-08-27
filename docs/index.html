@@ -2685,33 +2685,36 @@ pwr.f2.test(u = 1, f2 = 0.5/(1 - 0.5), sig.level = 0.001, power = 0.8)</code></p
 # look up the table
 # simulations
 
-resample = 1000
+B = 1000
 measurement = &#39;D1517&#39;
 
 # The mean mean function
+## This function takes a dataframe that contained columns which we want to measure and then uses the rstatix package to get the mean.  
 meanfunction &lt;- function(df){
 df %&gt;% rstatix::get_summary_stats(measurement, type = &quot;mean&quot;)  
 }
 
-# Function to randomly resample the mean 1000x with replacement and get a df with the mean of each resample
-# Do this once as this takes time and do not repeat for histogram
+# Function to randomly resample the mean with replacement and get a df with the mean of each resample
+## It takes a dataframe with a column we want to resample and uses the meanfunction and applies that to the column B number of times. The output is a dateframe which lists the mean in B x number of rows.
 listfunction &lt;- function(df){
-listdf &lt;- replicate(resample, dplyr::slice_sample(df, n= n, replace = TRUE), simplify = FALSE) %&gt;%
+listdf &lt;- replicate(B, dplyr::slice_sample(df, n= n, replace = TRUE), simplify = FALSE) %&gt;%
   lapply(., meanfunction) %&gt;% 
   bind_rows  
 return(listdf)
 }
 
 # Function to get a summary statistic of the mean
+## This function takes the dataframe produced by the listfunction and produces a summary statistic for it
 summaryfunction &lt;- function(listdf){
   listdf %&gt;% rstatix::get_summary_stats(mean, type = &quot;common&quot;)
 }
 
 
 # Function to get a historgram of the means
+## This function takes the dataframe produced by the listfunction and produces a histogram for it
 histofunction &lt;- function(summarydf){
 plotting &lt;- summaryfunction(summarydf)
-  summarydf %&gt;% ggpubr::gghistogram(x= &quot;mean&quot;, title = paste(resample,&quot;x resampled with n =&quot;, n, &quot;, mean =&quot;, plotting$mean, &quot;stdv =&quot;, plotting$sd))
+  summarydf %&gt;% ggpubr::gghistogram(x= &quot;mean&quot;, title = paste(B,&quot;x resampled with n =&quot;, n, &quot;, mean =&quot;, plotting$mean, &quot;stdv =&quot;, plotting$sd))
 }
 
 
