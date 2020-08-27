@@ -138,9 +138,9 @@ kableExtra::kable(metadata2 %>%
 # Power analysis 
   
 **Questions:**    
-- From the available 36 samples (21 for soil 1 and 15 for soil 2), how much power does a suitable test have to determine if there are significant differences between the two soils? If I understand power correctly, then it is the chance of getting a significant results i.e. power = percent(<=0.05).  
-- How many samples are needed per sample to get the true mean of dieldrin concentrations?  
-- How many paddocks are needed to model biological data to dieldrin loss?
+1. From the available 36 samples (21 for soil 1 and 15 for soil 2), how much power does a suitable test have to determine if there are significant differences between the two soils? If I understand power correctly, then it is the chance of getting a significant results i.e. power = percent(<=0.05).  
+2. How many samples are needed per sample to get the true mean of dieldrin concentrations?  
+3. How many paddocks are needed to model biological data to dieldrin loss?
   
 **Some reading**   
 - Statistical power analysis: A simple and general model for traditional and modern hypothesis tests [@Murphy2014]  
@@ -151,7 +151,7 @@ The following is based on the pwr package vignette:
 https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html
 
 #### t-test  
-How powerful is this experiment if we want to detect a “large” effect in either direction with a significance level of 0.05  
+An option to answer question 1: How powerful is this experiment if we want to detect a “large” effect in either direction with a significance level of 0.05  
 ```{r powert, include=TRUE, message=FALSE, echo=TRUE}
 # Effect size large = 0.8
 
@@ -167,7 +167,8 @@ If we wanted to redo this experiment (using equal sample sizes) 25 samples per s
   
 <br/>
 
-#### F-test
+#### F-test  
+An option to answer question 2: How many samples are needed? There are different options and am currently only exploring this... 
 ```{r powerf, include=TRUE, message=FALSE, echo=TRUE}
 
 # Calculate the number of samples needed to model Dlossmean (12 samples) with CN as predictor
@@ -181,8 +182,8 @@ pwr.f2.test(u = 1, f2 = 0.5/(1 - 0.5), sig.level = 0.001, power = 0.8)
 
 <br/>
 
-### Resampling of mean dieldrin concentrations  
-Calculate the power of getting the true mean of dieldrin concentrations from the pilot (n = 36). Resample 1000x across both soils and calculate mean and std of dieldrin concentrations. 
+## Resampling of mean dieldrin concentrations  
+An option to answer question 1: Calculate the power of getting the true mean of dieldrin concentrations from the pilot (n = 36). Resample 1000x across both soils and calculate mean and std of dieldrin concentrations. 
 ```{r resampleexample, include=TRUE, message=FALSE, warning=FALSE, fig.width=17, fig.asp=0.4, cache=TRUE}
 
 # Notes 
@@ -251,19 +252,19 @@ ggpubr::ggarrange(p10, p15, p20, nrow = 1)
 Lets say we take the mean and SD from the resampling with n = 20 and calculate the chance that the mean was outside the 2 SDs (outside of 95% of all probabilities). In other words, assuming the distribution was normal, how often does the mean fall outside the 95% of the resampled mean population?   
   
 So of the 1000 resamples calculate the percentage of times that the mean values are above 2xSD and below 2xSD. 
-In other words how many times to we get P( (X < (µ - 2SD)) + (X > (µ - 2SD)) ) = 0.05 
+In other words how many times until we get P( (X < (µ - 2SD)) + (X > (µ - 2SD)) ) = 0.05 
 ```{r, include=TRUE, message=FALSE, warning=FALSE}
 result <- mean( (summarydf %>% dplyr::select(mean)) > (summaryfunction(summarydf)$mean + (2*summaryfunction(summarydf)$sd)) ) + 
   mean( (summarydf %>% dplyr::select(mean)) < (summaryfunction(summarydf)$mean - 2*summaryfunction(summarydf)$sd) )
 
-print(paste("Result: There is a ",result*100, "chance the sampled mean falls outside the significant of 0.05%. So based on a normal distribution and a z-score the power is", (1-result)*100, "?"))
+print(paste("Result: There is a ",result*100, "% chance the sampled mean falls outside the significant of 0.05. So based on a normal distribution the power is", (1-result)*100, "?"))
 ```
 
 <br/>  
   
   
-## A robust mean? 
-The following is based on http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html  
+## Or just use a simplified formula? 
+An option to answer question 2: The following is based on http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html  
 Using:
 $$N = {2 * SD \choose SE}^2$$
 This is approximately at 95% confidence where N is the number of samples, SD the standard deviation and SE is the standard error. These values can be obtained from previous experiments, or from the literature
