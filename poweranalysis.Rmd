@@ -27,11 +27,12 @@ link-citations: yes
 # The data set  
 The data consists of measurements of 36 pasture-soil samples (0－10cm) which are historically contaminated with dieldrin residues. Dieldrin is extremely persistent and therefore still found in the surface soil after three decades of natural attenuation.  
   
-The samples were taken in 12 paddocks in two different soils, with three field replicates at representative areas of each paddock. So overall the data consists of:   
+The samples were taken in 12 paddocks in two different soils, with three field replicates at representative areas of each paddock.  So overall the data consists of:   
   
 - 2 soils
   - 12 paddocks (7 + 5)
     - 36 samples (3 per paddock, 21 + 15)  
+**Each sample is a composite of 8-10 soil cores which represents and area of the paddock.**  
   
 Total dieldrin loss (%) since 24-30 years was recorded per paddock. Thus, dieldrin residue concentrations (µg/g soil) and other soil measurements were measured for all samples (n = 36) but dieldrin loss (%) was available per paddock only (n = 12). 
   
