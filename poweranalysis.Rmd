@@ -145,7 +145,12 @@ kableExtra::kable(metadata2 %>%
   
 **Some reading**   
 - Statistical power analysis: A simple and general model for traditional and modern hypothesis tests [@Murphy2014]  
-- Statistical Power Analysis [@Cohen1992]
+- Statistical Power Analysis [@Cohen1992]  
+- Bootstrap Methods and their Application [@Davison1997] 
+
+**Videos**  
+- [Bootstrap Confidence Interval with R | R Video Tutorial 4.5](@https://www.youtube.com/watch?v=Om5TMGj9td4)
+
   
 ## pwr package
 The following is based on the pwr package vignette:  
