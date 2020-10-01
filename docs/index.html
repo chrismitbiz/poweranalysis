@@ -2935,21 +2935,6 @@ In other words how many times until we get P( (X &lt; (µ - 2SD)) + (X &gt; (µ 
 
 print(paste(&quot;Result: There is a &quot;,result*100, &quot;% chance the sampled mean falls outside the significant of 0.05. So based on a normal distribution the power is&quot;, (1-result)*100, &quot;?&quot;))</code></pre>
 <pre><code>## [1] &quot;Result: There is a  5.3 % chance the sampled mean falls outside the significant of 0.05. So based on a normal distribution the power is 94.7 ?&quot;</code></pre>
-</div>
-<div id="or-just-use-a-simplified-formula" class="section level3">
-<h3>Or just use a simplified formula?</h3>
-<p>An option to answer question 2: The following is based on <a href="http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html" class="uri">http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html</a><br />
-Using:
-<span class="math display">\[N = {2 * SD \choose SE}^2\]</span>
-This is approximately at 95% confidence where N is the number of samples, SD the standard deviation and SE is the standard error. These values can be obtained from previous experiments, or from the literature</p>
-<pre><code>## # A tibble: 2 x 6
-##   Soil      variable     n   mean    sd    se
-##   &lt;fct&gt;     &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1 Kurosol   logD1517    21 -0.866 0.282 0.061
-## 2 Chromosol logD1517    15 -0.021 0.179 0.046</code></pre>
-<pre><code>## [1] &quot;Based on this simplified formula to compute the minimum number of samples (see link) 85 samples are needed for the Kurosol and 61 samples are needed for the Chromosol&quot;</code></pre>
-<p>Result:<br />
-At a fixed 95% confidence the Kurosol requires more samples as the SE is lower in this soil. So despite that the values in the Chromosol are more variable, less samples are apparently required. Thus one can be 95% confident that the values are more variable in the Chromosol and fall between a wider value range x<sub>1</sub>…x<sub>n</sub> ? If so, then it does not seem appropriate to use this simplified calculation which uses the standard error and another method is needed.</p>
 <p><strong>Here the same formula is applied to dieldrin losses (n= 12):</strong></p>
 <pre class="r"><code># n = ((2 x STD) / SE )^2
 data &lt;- metadata2 %&gt;% group_by(Paddock) %&gt;% summarise(Dlossmean = mean(Dloss), CNmean = mean(CN))
@@ -2982,6 +2967,21 @@ pwr.f2.test(u = 1, f2 = 0.5/(1 - 0.5), sig.level = 0.001, power = 0.8)</code></p
 <pre class="r"><code>#n = v + u + 1
 # n = 21 + 1 + 1 = 22 paddocks needed at an effect size of 0.5</code></pre>
 <p><br /></p>
+</div>
+<div id="or-just-use-a-simplified-formula" class="section level3">
+<h3>Or just use a simplified formula?</h3>
+<p>An option to answer question 2: The following is based on <a href="http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html" class="uri">http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html</a><br />
+Using:
+<span class="math display">\[N = {2 * SD \choose SE}^2\]</span>
+This is approximately at 95% confidence where N is the number of samples, SD the standard deviation and SE is the standard error. These values can be obtained from previous experiments, or from the literature</p>
+<pre><code>## # A tibble: 2 x 6
+##   Soil      variable     n   mean    sd    se
+##   &lt;fct&gt;     &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 Kurosol   logD1517    21 -0.866 0.282 0.061
+## 2 Chromosol logD1517    15 -0.021 0.179 0.046</code></pre>
+<pre><code>## [1] &quot;Based on this simplified formula to compute the minimum number of samples (see link) 85 samples are needed for the Kurosol and 61 samples are needed for the Chromosol&quot;</code></pre>
+<p>Result:<br />
+At a fixed 95% confidence the Kurosol requires more samples as the SE is lower in this soil. So despite that the values in the Chromosol are more variable, less samples are apparently required. Thus one can be 95% confident that the values are more variable in the Chromosol and fall between a wider value range x<sub>1</sub>…x<sub>n</sub> ? If so, then it does not seem appropriate to use this simplified calculation which uses the standard error and another method is needed.</p>
 </div>
 </div>
 </div>
