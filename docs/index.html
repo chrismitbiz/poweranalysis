@@ -2796,19 +2796,24 @@ Dloss
 </div>
 <div id="power-analysis" class="section level1">
 <h1>Power analysis</h1>
-<p><strong>Questions:</strong><br />
-1. From the available 36 samples (21 for soil 1 and 15 for soil 2), how much power does a suitable test have to determine if there are significant differences between the two soils? If I understand power correctly, then it is the chance of getting a significant results i.e. power = percent(&lt;=0.05).<br />
-2. How many samples are needed per sample to get the true mean of dieldrin concentrations?<br />
-3. How many paddocks are needed to model biological data to dieldrin loss?</p>
+<p><strong>Questions:</strong></p>
+<ol style="list-style-type: decimal">
+<li>From the available 36 samples (21 for soil 1 and 15 for soil 2), <strong>how much power does a suitable test have</strong> to determine if there are significant differences between the two soils? If I understand power correctly, then it is the chance of getting a significant results i.e. power = percent(&lt;=0.05).<br />
+</li>
+<li><strong>How many samples are needed</strong> per sample to get the true mean of dieldrin concentrations?<br />
+</li>
+<li><strong>How many paddocks are needed</strong> to model biological data to dieldrin loss?</li>
+</ol>
 <p><strong>Some reading</strong><br />
 - Statistical power analysis: A simple and general model for traditional and modern hypothesis tests <span class="citation">(Murphy, Myors, and Wolach <a href="#ref-Murphy2014" role="doc-biblioref">2014</a>)</span><br />
 - Statistical Power Analysis <span class="citation">(Cohen <a href="#ref-Cohen1992" role="doc-biblioref">1992</a>)</span><br />
 - Bootstrap Methods and their Application <span class="citation">(Davison and Hinkley <a href="#ref-Davison1997" role="doc-biblioref">1997</a>)</span></p>
 <p><strong>Videos</strong><br />
 - <a href="https://www.youtube.com/watch?v=Om5TMGj9td4">Bootstrap Confidence Interval with R | R Video Tutorial 4.5</a></p>
-<div id="pwr-package" class="section level2">
-<h2>pwr package</h2>
-<p>The following is based on the pwr package vignette:<br />
+<div id="question-1" class="section level2">
+<h2>Question 1</h2>
+<p><strong>How much power does the result have?</strong>
+The following is based on the pwr package vignette:<br />
 <a href="https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html" class="uri">https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html</a></p>
 <div id="t-test" class="section level4">
 <h4>t-test</h4>
@@ -2842,28 +2847,8 @@ The sample size is uneven between the two soils (n= 21, n = 15) so the t-test is
 <p>If we wanted to redo this experiment (using equal sample sizes) 25 samples per soil are needed to test for significant differences at a power of 0.8.</p>
 <p><br /></p>
 </div>
-<div id="f-test" class="section level4">
-<h4>F-test</h4>
-<p>An option to answer question 2: How many samples are needed? There are different options and am currently only exploring this…</p>
-<pre class="r"><code># Calculate the number of samples needed to model Dlossmean (12 samples) with CN as predictor
-# https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html
-# The effect size is the R2 of the model. the coefficient of determination, aka the “proportion of variance explained”
-pwr.f2.test(u = 1, f2 = 0.5/(1 - 0.5), sig.level = 0.001, power = 0.8)</code></pre>
-<pre><code>## 
-##      Multiple regression power calculation 
-## 
-##               u = 1
-##               v = 20.6584
-##              f2 = 1
-##       sig.level = 0.001
-##           power = 0.8</code></pre>
-<pre class="r"><code>#n = v + u + 1
-# n = 21 + 1 + 1 = 22 paddocks needed at an effec size of 0.5</code></pre>
-<p><br /></p>
-</div>
-</div>
-<div id="resampling-of-mean-dieldrin-concentrations" class="section level2">
-<h2>Resampling of mean dieldrin concentrations</h2>
+<div id="resampling-of-mean-dieldrin-concentrations" class="section level3">
+<h3>Resampling of mean dieldrin concentrations</h3>
 <p>An option to answer question 1: Calculate the power of getting the true mean of dieldrin concentrations from the pilot (n = 36). Resample 1000x across both soils and calculate mean and std of dieldrin concentrations.</p>
 <pre class="r"><code># Notes 
 
@@ -2950,10 +2935,9 @@ In other words how many times until we get P( (X &lt; (µ - 2SD)) + (X &gt; (µ 
 
 print(paste(&quot;Result: There is a &quot;,result*100, &quot;% chance the sampled mean falls outside the significant of 0.05. So based on a normal distribution the power is&quot;, (1-result)*100, &quot;?&quot;))</code></pre>
 <pre><code>## [1] &quot;Result: There is a  5.3 % chance the sampled mean falls outside the significant of 0.05. So based on a normal distribution the power is 94.7 ?&quot;</code></pre>
-<p><br /></p>
 </div>
-<div id="or-just-use-a-simplified-formula" class="section level2">
-<h2>Or just use a simplified formula?</h2>
+<div id="or-just-use-a-simplified-formula" class="section level3">
+<h3>Or just use a simplified formula?</h3>
 <p>An option to answer question 2: The following is based on <a href="http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html" class="uri">http://r-video-tutorial.blogspot.com/2017/07/power-analysis-and-sample-size.html</a><br />
 Using:
 <span class="math display">\[N = {2 * SD \choose SE}^2\]</span>
@@ -2975,6 +2959,30 @@ n = ( (2 * sum_stat$sd) / sum_stat$se )^2
 n </code></pre>
 <pre><code>## [1] 48.00781</code></pre>
 <p>Accordingly, 48 samples were needed for the mean dieldrin loss to be robust</p>
+</div>
+</div>
+<div id="question-2" class="section level2">
+<h2>Question 2</h2>
+<div id="f-test" class="section level4">
+<h4>F-test</h4>
+<p><strong>How many samples are needed?</strong>
+An option to answer question 2: How many samples are needed? There are different options and am currently only exploring this…</p>
+<pre class="r"><code># Calculate the number of samples needed to model Dlossmean (12 samples) with CN as predictor
+# https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html
+# The effect size is the R2 of the model. the coefficient of determination, aka the “proportion of variance explained”
+pwr.f2.test(u = 1, f2 = 0.5/(1 - 0.5), sig.level = 0.001, power = 0.8)</code></pre>
+<pre><code>## 
+##      Multiple regression power calculation 
+## 
+##               u = 1
+##               v = 20.6584
+##              f2 = 1
+##       sig.level = 0.001
+##           power = 0.8</code></pre>
+<pre class="r"><code>#n = v + u + 1
+# n = 21 + 1 + 1 = 22 paddocks needed at an effect size of 0.5</code></pre>
+<p><br /></p>
+</div>
 </div>
 </div>
 <div id="other-stuff" class="section level1">
