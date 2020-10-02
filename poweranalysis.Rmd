@@ -157,7 +157,7 @@ kableExtra::kable(metadata2 %>%
 The following is based on the pwr package vignette:  
 https://cran.r-project.org/web/packages/pwr/vignettes/pwr-vignette.html
 
-#### t-test  
+### t-test  
 An option to answer question 1: How powerful is this experiment if we want to detect a “large” effect in either direction with a significance level of 0.05  
 ```{r powert, include=TRUE, message=FALSE, echo=TRUE}
 # Effect size large = 0.8
