@@ -304,8 +304,8 @@ Result:
 At a fixed 95% confidence the Kurosol requires more samples as the SE is lower in this soil. So despite that the values in the Chromosol are more variable, less samples are apparently required. Thus one can be 95% confident that the values are more variable in the Chromosol and fall between a wider value range x~1~...x~n~ ? If so, then it does not seem appropriate to use this simplified calculation which uses the standard error and another method is needed. 
 
 
-# Other stuff
-## Confidence intervals (bootstrapped)
+# Confidence Intervals
+## Using groupwiseMean function (including bootstrapping)
 ```{r ce, include=TRUE, message=FALSE, echo=TRUE}
 
 # Get bootstrapped confidence interval for dieldrin concentrations per sample.
@@ -327,8 +327,56 @@ shapiro.test(meandata$Dlossmean)
 rcompanion::groupwiseMean(Dlossmean ~ 1, data = meandata, conf = 0.95, digits = 3,
               boot = TRUE, R = 1000)
 
+```
 
+## Bootstrap for confidence intervals of the mean and median difference 
+**Using the percentile method**
+```{r ce2, include=TRUE, message=FALSE, echo=TRUE}
+# Ideas mostly from MarinStatsLectures-R Programming & Statistics  -https://www.youtube.com/watch?v=Om5TMGj9td4
+
+# Calculate the difference in sample means (Chromosol - Kurosol)
+Obs.Diff.In.Means <- (metadata2 %>% group_by(Soil) %>% summarise(means = mean(D1517)) %>% filter(Soil == "Chromosol"))$means - 
+          (metadata2 %>% group_by(Soil) %>% summarise(means = mean(D1517)) %>% filter(Soil == "Kurosol"))$means
+print(paste("On average the dieldrin concentrations in the Chromosol were ", round(Obs.Diff.In.Means,2), "µg/g higher"))
+
+Obs.Diff.In.Medians <- (metadata2 %>% group_by(Soil) %>% summarise(means = median(D1517)) %>% filter(Soil == "Chromosol"))$means - 
+          (metadata2 %>% group_by(Soil) %>% summarise(means = median(D1517)) %>% filter(Soil == "Kurosol"))$means
+print(paste("The median dieldrin concentrations in the Chromosol were ", round(Obs.Diff.In.Medians,2), "µg/g higher"))
+
+set.seed(13579)
+n.c <- 10 # the number of observations to sample from the Chromosol
+n.k <- 8 # the number of observations to sample form the Kurosol
+B <- 10000 # The number of bootstrap samples-- go big or go home
+
+# now, get bootstrap samples for each soil separately (the CI used the observed (samples) values as point of reference)
+Boot.chrom <- matrix( sample((metadata2 %>% dplyr::filter(Soil == "Chromosol") %>% dplyr::select(D1517))$D1517, 
+                             size = B*n.c, replace = TRUE), ncol = B, nrow = n.c ) 
+
+Boot.kur <- matrix( sample( (metadata2 %>% dplyr::filter(Soil == "Kurosol") %>% dplyr::select(D1517))$D1517 , 
+                             size = B*n.k, replace = TRUE), ncol = B, nrow = n.k ) 
+
+# check those
+#dim(Boot.chrom ); dim(Boot.kur )
+
+# calculate the differences in MEANS for each of the bootsamples
+Boot.Diff.In.Means <- colMeans(Boot.chrom) - colMeans(Boot.kur)
+
+# calculate the differences in MEDIANS for each of the bootsamples
+Boot.Diff.In.Median <- apply(Boot.chrom, MARGIN = 2, FUN=median) - apply(Boot.kur, MARGIN = 2, FUN=median)
+
+# Make the confidence interval (using the 95% confidence)
+
+#Percentile Method
+#quantile(Boot.Diff.In.Means, prob=0.025)
+#quantile(Boot.Diff.In.Means, prob=0.975)
+
+print(paste("We are 95% confident that the mean dieldrin concentrations in the Chromosol were somewhere between ", round(quantile(Boot.Diff.In.Means, prob=0.025),2), "µg/g and", round(quantile(Boot.Diff.In.Means, prob=0.975),2), "higher than the Kurosol"))
+
+#quantile(Boot.Diff.In.Median, prob=0.025)
+#quantile(Boot.Diff.In.Median, prob=0.975)
+print(paste("We are 95% confident that the median dieldrin concentrations in the Chromosol were somewhere between ", round(quantile(Boot.Diff.In.Median, prob=0.025),2), "µg/g and", round(quantile(Boot.Diff.In.Median, prob=0.975),2), "higher than the Kurosol"))
 
 ```
+
 
 # References
